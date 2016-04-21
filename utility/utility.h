@@ -27,5 +27,11 @@
 int 			is_file_directory(const char *pathname);
 bool 			folder_exists(const char* path);
 int 			mkdir_r(const char* path);
+char 			*get_extension(const char *filePath);
+char 			*del_extension(char *filePath);
+void 			split_file_path(const char *filePath, char *dir, char *filename);
+bool 			del_file(const char *filename);
+bool 			del_directory(const char *path);
+void			dir_traverse(const char *path, char ***files, int &size);
 
 #endif // __UTILITY_H_
