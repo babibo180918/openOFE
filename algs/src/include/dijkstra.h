@@ -3,6 +3,6 @@
 
 #include "graph.h"
 
-void dijkstra_search(Graph *g, int snode, int dnode);
+void dijkstra_run(Graph *g, int snode, int dnode);
 
 #endif /* __DIJKSTRA_H__ */

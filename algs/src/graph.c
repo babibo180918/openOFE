@@ -8,6 +8,15 @@ struct _graph {
     int **matrix;   //Adjacent matrix
 };
 
+typedef struct _node {
+    int id;
+    struct _node *next;
+} Node;
+
+struct _graph_it {
+    Node *list;
+}; 
+
 Graph *graph_init(int n)
 {
     if (n <= 0) return NULL;
@@ -36,4 +45,47 @@ void graph_close(Graph *g)
 void graph_add(Graph *g, int v, int w, int weight)
 {
     g->matrix[v][w] = weight;
+}
+
+GraphIterator *graph_get_adjacencies(Graph *g, int v)
+{
+    GraphIterator *nodeIt = (GraphIterator *)malloc(sizeof(GraphIterator));
+    nodeIt->list = NULL;
+    int i;
+    for (i = 0; i < g->size; i++) {
+        if (g->matrix[v][i] > 0) {
+            Node *newnode = (Node *)malloc(sizeof(GraphIterator));
+            newnode->id = i;
+            newnode->next = nodeIt->list;
+            nodeIt->list = newnode;
+        }
+    }
+    return nodeIt;
+}
+
+int graph_next(GraphIterator *it)
+{
+    int ret = -1;
+    if (it->list) {
+        Node *node = it->list;
+        it->list = it->list->next;
+        ret = node->id;
+        free(node);
+    }
+    return ret;
+}
+
+void graph_freeit(GraphIterator *it)
+{
+    while (it->list) {
+        Node *node = it->list;
+        it->list = it->list->next;
+        free(node);
+    }
+    free(it);
+}
+
+int graph_weight(Graph *g, int u, int v)
+{
+    return g->matrix[u][v];
 }

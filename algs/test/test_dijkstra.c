@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     graph_add(g, 2, 4, 3);
     graph_add(g, 4, 3, 2);
 
-    dijkstra_search(g, 0, 4);
+    dijkstra_run(g, 0, 4);
     
     graph_close(g);
 }
