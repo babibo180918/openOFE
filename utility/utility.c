@@ -68,8 +68,7 @@ int is_file_directory(const char* pathname) {
 
 bool folder_exists(const char* path) {
 	struct stat st;
-	stat(path, &st);
-	return st.st_mode & S_IFDIR;
+	return (stat(path, &st)==0 && S_ISDIR(st.st_mode));
 }
 
 int mkdir_r(const char* path) {
@@ -80,16 +79,12 @@ int mkdir_r(const char* path) {
 	while (std::getline(ss, level, DIR_DELIMIT_CHAR)) {
 		current_level += level;
 		current_level += DIR_DELIMIT_CHAR;
-
+        if(folder_exists(current_level.c_str())) continue;
 #if defined _WIN32
-		if (!folder_exists(current_level.c_str()) && _mkdir(current_level.c_str()) != 0)
-		return -1;
+		if (_mkdir(current_level.c_str()) != 0) return -1;
 
 #else
-		printf("current_level.c_str(): %s\n", current_level.c_str());
-		if (!folder_exists(current_level.c_str())
-				&& mkdir(current_level.c_str(), 0777) != 0)
-			return -1;
+		if (mkdir(current_level.c_str(), 0777) != 0) return -1;
 #endif
 	}
 	return 0;
