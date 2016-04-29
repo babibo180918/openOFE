@@ -25,13 +25,14 @@ void Logger::createLog(const char* path){
 		fpLog = NULL;
 	}
 	if(!path || strlen(path) <=0){
-		printLog("ERROR", "Failed to create Log file.\n");
+		printLog("ERROR", "Failed to create Log file.\n", KRED);
 		return;
 	}
 
 	if(!folder_exists(path)){
 		if(!mkdir_r(path)==0){
-			printLog("ERROR", "Failed to create Log file.\n");
+			printLog("ERROR", "Failed to create Log file.\n", KRED);
+            return;
 		}
 	}
 
@@ -47,11 +48,11 @@ void Logger::createLog(const char* path){
 	fpLog = fopen(filename, "r+");
 	if(fpLog == NULL){
 		fpLog = fopen(filename, "w");
-		if(fpLog)
-			printf("New log file created: %s\n", filename);
+		if(fpLog) Logger::o("New log file created: %s\n", filename);
+        else printLog("ERROR", "Failed to create log file.", KRED);
 	} else {
 		fseek(fpLog, 0, SEEK_END);
-		printf("Log file is openned: %s\n", filename);
+		Logger::o("Log file is openned: %s\n", filename);
 	}
 }
 
@@ -61,16 +62,16 @@ void Logger::o(const char* format, ...) {
 	va_start(args, format);
 	vsprintf(string, format, args);
 	va_end(args);
-	printLog("", string);
+	printLog("OUT", string, KYEL);
 }
 
-void Logger::i(const char* format, ...) {
-	va_list args;
-	char    string[MAX_MSGLEN + 1];
-	va_start(args, format);
-	vsprintf(string, format, args);
-	va_end(args);
-	printLog("INFO", string);
+void Logger::w(const char* format, ...) {
+    va_list args;
+    char    string[MAX_MSGLEN + 1];
+    va_start(args, format);
+    vsprintf(string, format, args);
+    va_end(args);
+    printLog("WARN", string, KMAG);
 }
 
 void Logger::e(const char* format, ...) {
@@ -79,7 +80,7 @@ void Logger::e(const char* format, ...) {
 	va_start(args, format);
 	vsprintf(string, format, args);
 	va_end(args);
-	printLog("ERROR", string);
+	printLog("ERROR", string, KRED);
 }
 
 void Logger::d(const char* format, ...) {
@@ -88,18 +89,23 @@ void Logger::d(const char* format, ...) {
 	va_start(args, format);
 	vsprintf(string, format, args);
 	va_end(args);
-	printLog("DEBUG", string);
+	printLog("DEBUG", string, KBLU);
 }
 
-void Logger::printLog(const char* logo, const char* msg) {
-	//if (fpLog==NULL) {
-	//	//createLog(DEFAULT_LOG_DIR);
-	//	return;
-	//}
+void Logger::i(const char* format, ...) {
+    va_list args;
+    char    string[MAX_MSGLEN + 1];
+    va_start(args, format);
+    vsprintf(string, format, args);
+    va_end(args);
+    printLog("INFO", string, KCYN);
+}
+
+void Logger::printLog(const char* logo, const char* msg, const char *color) {
 	char    string[MAX_MSGLEN + 1];
 	time_t t = time(NULL);
 	struct tm* _tm = localtime(&t);
-	sprintf(string, "%04d%02d%02d_%02d%02d%02d: %5s %s",
+	sprintf(string, "%04d%02d%02d_%02d%02d%02d[%5s] %s",
 			_tm->tm_year + 1900,
 			_tm->tm_mon + 1,
 			_tm->tm_mday,
@@ -107,10 +113,9 @@ void Logger::printLog(const char* logo, const char* msg) {
 			_tm->tm_min,
 			_tm->tm_sec,
 			logo, msg);
-	printf(string);
-	if (!fpLog) {
-		createLog(DEFAULT_LOG_DIR);
-	}
+	printf("%s%s", color, string);
+    printf(KNOR);
+    if (!fpLog) return;
 
 	fseek(fpLog, 0, SEEK_END);
 	fputs(string, fpLog);
